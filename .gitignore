@@ -1,129 +1,217 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+#Program Created by Bailey Johnson - baileyakjohnson@gmail.com / +61 456 046 927
 
-# C extensions
-*.so
+#pyinstaller --onefile main.py
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from time import sleep
+import tkinter as tk
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
+import os
+import openpyxl
+from openpyxl import Workbook
+import pandas as pd
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+def get_me(excelsheet_entry, link_entry, date_entry):
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+  #Lists for excel and expert_count
+  number_list = []
+  expert_count = 1
+  expert_pictures = []
+  expert_names = []
+  expert_former_roles = []
+  expert_finish_dates = []
+  expert_role_durations = []
+  expert_former_companies = []
+  expert_current_roles = []
+  expert_current_companies = []
+  expert_profile_links = []
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+  #open and read login/password
+  with open('login.txt') as f:
+    credentials = []
+    for lines in f:
+      credentials.append(lines)
+    user_login_line = credentials[1].split()
+    user_login = user_login_line[1]
+    user_login = user_login[1:-1]
+    user_password_line = credentials[2].split()
+    user_password = user_password_line[1]
+    user_password = user_password[1:-1]
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
+  #access Chrome Web Driver
+  service = Service('chromedriver.exe')
 
-# Translations
-*.mo
-*.pot
+  # specifies the path to the chromedriver.exe
+  driver = webdriver.Chrome(service=service)
 
-# Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
+  #sets the browser to full screen
+  driver.maximize_window()
 
-# Flask stuff:
-instance/
-.webassets-cache
+  # driver.get method() will navigate to a page given by the URL address
+  driver.get('https://www.linkedin.com')
 
-# Scrapy stuff:
-.scrapy
+  #enters username
+  username = driver.find_element(By.ID, 'session_key')
+  username.send_keys(user_login)
+  sleep(0.5)
 
-# Sphinx documentation
-docs/_build/
+  # enters password
+  password = driver.find_element(By.ID, 'session_password')
+  password.send_keys(user_password)
+  sleep(0.5)
 
-# PyBuilder
-target/
+  # clicks login button
+  driver.find_element(By.XPATH, "//button[@type='submit']").click()
+  sleep(2.5)
 
-# Jupyter Notebook
-.ipynb_checkpoints
+  # navigate to the search
+  driver.get(link_entry)
 
-# IPython
-profile_default/
-ipython_config.py
+  # Adding Selenium Actions
+  actions = ActionChains(driver)
 
-# pyenv
-.python-version
+  while True:
+    # Wait for initial page load
+    sleep(6)
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
+    # Timer to scroll page slowly
+    for x in range(100):
+      actions.scroll(1200, 200, 0, 50, 1, 'viewport').perform()
+      sleep(0.0001)
 
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
+    #Navigate through a page and find all the former dates to see how recent.
+    for count in range(1, 26):
+      try:
+        dates_at_former_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                    ']//dt[contains(text(), "Experience:")]//parent::div//dd//span[1]').text
+        date_finished = dates_at_former_company[-4:]
+      except:
+        pass
+      if date_finished >= date_entry:
+        try:
 
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
+          # expert_href will find the link to the experts SalesNav Profile
+          expert_href = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                            ']/div/div/div[2]/div/div/div/div[2]/div/div/a').get_attribute('href')
 
-# SageMath parsed files
-*.sage.py
+          # expert_name will find the experts name
+          expert_name = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                            ']/div/div/div[2]/div/div/div/div[2]/div/div').text
 
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+          #To add expert pictures
+          #expert_pictures
 
-# Spyder project settings
-.spyderproject
-.spyproject
+          # Expert tenure at former company
+          tenure_at_former_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                                         ']//dt[contains(text(), "Experience:")]//parent::div//dd//span[2]').text
 
-# Rope project settings
-.ropeproject
+          # Name of former company
+          name_of_former_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                                         ']//dt[contains(text(), "Experience:")]//parent::div//dd//span[4]').text
 
-# mkdocs documentation
-/site
+          # Expert role at former company
+          role_at_former_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                                       ']//dt[contains(text(), "Experience:")]//parent::div//dd//span[6]').text
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+          # Expert role at current company
+          role_at_current_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                                          ']//span[contains(@data-anonymize, "title")]').text
 
-# Pyre type checker
-.pyre/
+          number_list.append(expert_count)
+          expert_count += 1
+          expert_profile_links.append(expert_href)
+          expert_names.append(expert_name)
+          expert_finish_dates.append(date_finished)
+          expert_role_durations.append(tenure_at_former_company)
+          expert_former_companies.append(name_of_former_company)
+          expert_current_roles.append(role_at_current_company)
+          expert_former_roles.append(role_at_former_company)
+
+          # Name of current company
+          try:
+            name_of_current_company = driver.find_element(By.XPATH, '//li[' + str(count) +
+                                                          ']//a[contains(@data-anonymize, "company-name")]').text
+            expert_current_companies.append(name_of_current_company)
+          except:
+            expert_current_companies.append('-')
+
+        except:
+          pass
+    else:
+      pass
+
+    try:
+      actions.click(driver.find_element(By.XPATH, '//button[contains(@aria-label, "Next") and '
+                                                  'contains(@class, "artdeco-pagination__button") and '
+                                                  'not(@disabled)]')).perform()
+    except:
+
+      # print(len(number_list))
+      # #print(len(expert_pictures))
+      # print(len(expert_names))
+      # print(len(expert_former_roles))
+      # print(len(expert_finish_dates))
+      # print(len(expert_role_durations))
+      # print(len(expert_former_companies))
+      # print(len(expert_current_roles))
+      # print(len(expert_current_companies))
+      # print(expert_current_companies)
+      # print(len(expert_profile_links))
+
+      #DataFrame Columns and Data
+      df = pd.DataFrame({'No.': number_list,
+                         #'Profile Picture': expert_pictures,
+                         'Expert Name': expert_names,
+                         'Former Role': expert_former_roles,
+                         'Finish Year': expert_finish_dates,
+                         'Role Duration': expert_role_durations,
+                         'Former Company': expert_former_companies,
+                         'Current Role': expert_current_roles,
+                         'Current Company': expert_current_companies,
+                         'Profile Link': expert_profile_links
+                         })
+
+      # Create a new excel sheet
+      writer = pd.ExcelWriter(f'{excelsheet_entry}.xlsx', engine='xlsxwriter')
+
+      # Convert the dataframe to an XlsxWriter Excel object.
+      df.to_excel(writer, sheet_name='Sheet1', index=False)
+
+      # Close the Pandas Excel writer and output the Excel file.
+      writer.close()
+
+      os.system('start "excel.exe" 'f"{excelsheet_entry}.xlsx"'')
+
+      break
+
+excelsheet_entry_width = 30
+link_entry_width = 80
+date_entry_width = 30
+
+root = tk.Tk()
+
+heading = tk.Label(root, text="TK's Lead Gen Sales Nav Scraper")
+heading.grid(row=0, column=1)
+
+excelsheet_label = tk.Label(root, text="Excel Sheet Name:")
+excelsheet_label.grid(row=3, column=0)
+link_label = tk.Label(root, text="Sales Nav Search Link: ")
+link_label.grid(row=4, column=0)
+date_label = tk.Label(root, text="As or More Recent Than: ")
+date_label.grid(row=5, column=0)
+
+excelsheet_entry = tk.Entry(root, width=excelsheet_entry_width)
+excelsheet_entry.grid(row=3, column=1)
+link_entry = tk.Entry(root, width=link_entry_width)
+link_entry.grid(row=4, column=1)
+date_entry = tk.Entry(root, width=date_entry_width)
+date_entry.grid(row=5, column=1)
+
+button = tk.Button(root, text="Generate Leads", command=lambda: get_me(
+  excelsheet_entry.get(),
+  link_entry.get(),
+  date_entry.get()))
+button.grid(row=0, column=0)
+
+root.mainloop()
