@@ -1,4 +1,4 @@
-#Program Created by Bailey Johnson - baileyakjohnson@gmail.com / +61 456 046 927
+#Program Created by Bailey Johnson - baileyakjohnson@gmail.com
 
 #pyinstaller --onefile main.py
 from selenium import webdriver
@@ -99,9 +99,6 @@ def get_me(excelsheet_entry, link_entry, date_entry):
           expert_name = driver.find_element(By.XPATH, '//li[' + str(count) +
                                             ']/div/div/div[2]/div/div/div/div[2]/div/div').text
 
-          #To add expert pictures
-          #expert_pictures
-
           # Expert tenure at former company
           tenure_at_former_company = driver.find_element(By.XPATH, '//li[' + str(count) +
                                                          ']//dt[contains(text(), "Experience:")]//parent::div//dd//span[2]').text
@@ -147,21 +144,8 @@ def get_me(excelsheet_entry, link_entry, date_entry):
                                                   'not(@disabled)]')).perform()
     except:
 
-      # print(len(number_list))
-      # #print(len(expert_pictures))
-      # print(len(expert_names))
-      # print(len(expert_former_roles))
-      # print(len(expert_finish_dates))
-      # print(len(expert_role_durations))
-      # print(len(expert_former_companies))
-      # print(len(expert_current_roles))
-      # print(len(expert_current_companies))
-      # print(expert_current_companies)
-      # print(len(expert_profile_links))
-
       #DataFrame Columns and Data
       df = pd.DataFrame({'No.': number_list,
-                         #'Profile Picture': expert_pictures,
                          'Expert Name': expert_names,
                          'Former Role': expert_former_roles,
                          'Finish Year': expert_finish_dates,
@@ -191,12 +175,12 @@ date_entry_width = 30
 
 root = tk.Tk()
 
-heading = tk.Label(root, text="TK's Lead Gen Sales Nav Scraper")
+heading = tk.Label(root, text="Lead Gen Web Scraper")
 heading.grid(row=0, column=1)
 
 excelsheet_label = tk.Label(root, text="Excel Sheet Name:")
 excelsheet_label.grid(row=3, column=0)
-link_label = tk.Label(root, text="Sales Nav Search Link: ")
+link_label = tk.Label(root, text="Search Link: ")
 link_label.grid(row=4, column=0)
 date_label = tk.Label(root, text="As or More Recent Than: ")
 date_label.grid(row=5, column=0)
